@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OLT Monitor</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <h1>OLT Monitor</h1>
+
+  <label for="olt">Pilih OLT:</label>
+  <select id="olt">
+    <option value="10.246.0.242">Kantor</option>
+    <option value="10.246.2.126">Jalibar</option>
+    <option value="10.246.3.70">Jalantra</option>
+    <option value="10.246.15.94">Pasuruan</option>
+    <option value="10.246.2.218">Joni</option>
+    <option value="10.246.15.110">Bangil</option>
+  </select>
+
+  <label for="port">Port (contoh:1/2/1):</label>
+  <input type="text" id="port" value="1/2/1">
+
+  <label for="threshold">Threshold dBm:</label>
+  <input type="number" id="threshold" value="-22">
+
+  <button onclick="fetchData()">Tampilkan</button>
+
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>ONU</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Rx Power (dBm)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+async function fetchData() {
+  const olt = document.getElementById('olt').value;
+  const port = document.getElementById('port').value;
+  const threshold = document.getElementById('threshold').value;
+
+  const url = `/api/low-rx?olt=${olt}&port=${port}&threshold=${threshold}`;
+  const res = await fetch(url);
+  const data = await res.json();
+
+  const tbody = document.querySelector('#resultTable tbody');
+  tbody.innerHTML = '';
+
+  data.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item.onu}</td>
+      <td>${item.name || '-'}</td>
+      <td>${item.description || '-'}</td>
+      <td>${item.rx_power}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>
